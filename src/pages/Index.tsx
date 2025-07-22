@@ -4,12 +4,16 @@ import { AddProjectModal } from "@/components/AddProjectModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Terminal, Plus, Github, ExternalLink, Activity, Zap, Code2, Globe, Sparkles } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Search, Terminal, Plus, Github, ExternalLink, Activity, Zap, Code2, Globe, Sparkles, User, LogOut } from "lucide-react";
 import { saveProjects, loadProjects, generateId } from "@/utils/projectStorage";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const { toast } = useToast();
+  const { user, logout } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -127,13 +131,36 @@ const Index = () => {
                   variant="outline"
                   size="sm"
                   onClick={copyAllUrls}
-                  className="hidden sm:flex border-primary/20 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all duration-300"
+                  className="hidden sm:flex border-border hover:bg-accent transition-all duration-200"
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Copy All URLs
                 </Button>
               )}
               <AddProjectModal onAddProject={addProject} />
+              
+              {/* User Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-accent text-accent-foreground">
+                        {user?.name.charAt(0).toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuItem className="flex flex-col items-start p-3">
+                    <div className="text-sm font-medium text-foreground">{user?.name}</div>
+                    <div className="text-xs text-muted-foreground">{user?.email}</div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={logout} className="text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
