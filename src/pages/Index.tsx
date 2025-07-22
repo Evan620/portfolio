@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Search, Terminal, Plus, Github, ExternalLink, Activity, Zap, Code2, Globe, Sparkles, User, LogOut } from "lucide-react";
-import { saveProjects, loadProjects, generateId } from "@/utils/projectStorage";
+import { ProjectService } from "@/services/projectService";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -17,41 +17,91 @@ const Index = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Load projects on mount
   useEffect(() => {
-    const loadedProjects = loadProjects();
-    setProjects(loadedProjects);
-  }, []);
+    const loadProjects = async () => {
+      setLoading(true);
+      const { projects: loadedProjects, error } = await ProjectService.getProjects();
 
-  // Save projects whenever they change
-  useEffect(() => {
-    saveProjects(projects);
-  }, [projects]);
+      if (error) {
+        toast({
+          title: "Error loading projects",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        setProjects(loadedProjects);
+      }
 
-  const addProject = (projectData: Omit<Project, "id" | "createdAt">) => {
-    const newProject: Project = {
-      ...projectData,
-      id: generateId(),
-      createdAt: new Date().toISOString(),
+      setLoading(false);
     };
-    setProjects(prev => [newProject, ...prev]);
+
+    loadProjects();
+  }, [toast]);
+
+  const addProject = async (projectData: Omit<Project, "id" | "createdAt">) => {
+    const { project: newProject, error } = await ProjectService.createProject(projectData);
+
+    if (error) {
+      toast({
+        title: "Error creating project",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newProject) {
+      setProjects(prev => [newProject, ...prev]);
+      toast({
+        title: "Project created",
+        description: `${newProject.name} has been added to your projects`,
+      });
+    }
   };
 
-  const updateProject = (projectData: Omit<Project, "id" | "createdAt">) => {
+  const updateProject = async (projectData: Omit<Project, "id" | "createdAt">) => {
     if (!editingProject) return;
-    
-    setProjects(prev => 
-      prev.map(project => 
-        project.id === editingProject.id
-          ? { ...project, ...projectData }
-          : project
-      )
-    );
-    setEditingProject(null);
+
+    const { project: updatedProject, error } = await ProjectService.updateProject(editingProject.id, projectData);
+
+    if (error) {
+      toast({
+        title: "Error updating project",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (updatedProject) {
+      setProjects(prev =>
+        prev.map(project =>
+          project.id === editingProject.id ? updatedProject : project
+        )
+      );
+      setEditingProject(null);
+      toast({
+        title: "Project updated",
+        description: `${updatedProject.name} has been updated successfully`,
+      });
+    }
   };
 
-  const deleteProject = (id: string) => {
+  const deleteProject = async (id: string) => {
+    const { error } = await ProjectService.deleteProject(id);
+
+    if (error) {
+      toast({
+        title: "Error deleting project",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setProjects(prev => prev.filter(project => project.id !== id));
     toast({
       title: "Project deleted",
@@ -206,7 +256,14 @@ const Index = () => {
         </div>
 
         {/* Projects Grid */}
-        {filteredProjects.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-20 animate-fade-in">
+            <div className="flex justify-center">
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+            </div>
+            <p className="text-muted-foreground font-mono">Loading projects...</p>
+          </div>
+        ) : filteredProjects.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">
             {projects.length === 0 ? (
               <div className="space-y-6">

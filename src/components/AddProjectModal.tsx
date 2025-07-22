@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Project } from "./ProjectCard";
 
 interface AddProjectModalProps {
-  onAddProject: (project: Omit<Project, "id" | "createdAt">) => void;
+  onAddProject: (project: Omit<Project, "id" | "createdAt">) => Promise<void>;
   editingProject?: Project | null;
   onEditComplete?: () => void;
 }
@@ -16,6 +16,7 @@ interface AddProjectModalProps {
 export const AddProjectModal = ({ onAddProject, editingProject, onEditComplete }: AddProjectModalProps) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: editingProject?.name || "",
     client: editingProject?.client || "",
@@ -23,9 +24,9 @@ export const AddProjectModal = ({ onAddProject, editingProject, onEditComplete }
     githubUrl: editingProject?.githubUrl || "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim() || !formData.client.trim() || !formData.projectUrl.trim() || !formData.githubUrl.trim()) {
       toast({
         title: "Please fill in all fields",
@@ -48,25 +49,26 @@ export const AddProjectModal = ({ onAddProject, editingProject, onEditComplete }
       return;
     }
 
-    onAddProject(formData);
-    
-    toast({
-      title: editingProject ? "Project updated" : "Project added",
-      description: editingProject 
-        ? `${formData.name} has been updated successfully`
-        : `${formData.name} has been added to your projects`,
-    });
+    setLoading(true);
 
-    setFormData({
-      name: "",
-      client: "",
-      projectUrl: "",
-      githubUrl: "",
-    });
-    
-    setOpen(false);
-    if (editingProject && onEditComplete) {
-      onEditComplete();
+    try {
+      await onAddProject(formData);
+
+      setFormData({
+        name: "",
+        client: "",
+        projectUrl: "",
+        githubUrl: "",
+      });
+
+      setOpen(false);
+      if (editingProject && onEditComplete) {
+        onEditComplete();
+      }
+    } catch (error) {
+      // Error handling is done in the parent component
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -175,12 +177,20 @@ export const AddProjectModal = ({ onAddProject, editingProject, onEditComplete }
               type="submit"
               variant="gradient"
               className="flex-1 relative overflow-hidden group"
+              disabled={loading}
             >
               <div className="absolute inset-0 bg-gradient-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <span className="relative z-10">
-                {editingProject ? "Update Project" : "Add Project"}
+                {loading
+                  ? (editingProject ? "Updating..." : "Adding...")
+                  : (editingProject ? "Update Project" : "Add Project")
+                }
               </span>
-              <Sparkles className="h-3 w-3 ml-2 relative z-10 animate-pulse" />
+              {loading ? (
+                <div className="w-3 h-3 ml-2 border border-primary-foreground border-t-transparent rounded-full animate-spin relative z-10"></div>
+              ) : (
+                <Sparkles className="h-3 w-3 ml-2 relative z-10 animate-pulse" />
+              )}
             </Button>
           </div>
         </form>

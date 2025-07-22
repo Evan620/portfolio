@@ -8,9 +8,10 @@ import { toast } from 'sonner';
 
 interface RegisterFormProps {
   onToggleMode: () => void;
+  onEmailConfirmationNeeded: (email: string) => void;
 }
 
-export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
+export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode, onEmailConfirmationNeeded }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,13 +37,22 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
     }
 
     setIsLoading(true);
-    const success = await register(email, password, name);
-    setIsLoading(false);
 
-    if (success) {
-      toast.success('Account created successfully!');
-    } else {
-      toast.error('Email already exists');
+    try {
+      const result = await register(email, password, name);
+
+      if (result.error) {
+        toast.error(result.error.message);
+      } else if (result.needsEmailConfirmation) {
+        toast.success('Account created! Please check your email to confirm your account.');
+        onEmailConfirmationNeeded(email);
+      } else if (result.user) {
+        toast.success('Account created successfully!');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -24,13 +24,19 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
     }
 
     setIsLoading(true);
-    const success = await login(email, password);
-    setIsLoading(false);
 
-    if (success) {
-      toast.success('Welcome back!');
-    } else {
-      toast.error('Invalid email or password');
+    try {
+      const success = await login(email, password);
+
+      if (success) {
+        toast.success('Welcome back!');
+      } else {
+        toast.error('Invalid email or password');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -79,7 +85,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
           </Button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-3">
           <p className="text-muted-foreground text-sm">
             Don't have an account?{' '}
             <button
@@ -88,6 +94,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
             >
               Sign up
             </button>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Having trouble signing in? Make sure you've confirmed your email address.
           </p>
         </div>
       </CardContent>
