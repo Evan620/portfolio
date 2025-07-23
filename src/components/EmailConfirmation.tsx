@@ -42,11 +42,11 @@ export const EmailConfirmation: React.FC<EmailConfirmationProps> = ({ email, onB
             <div className="p-2 bg-primary/10 rounded-lg">
               <Terminal className="h-6 w-6 text-primary" />
             </div>
-            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent font-serif tracking-wide">
               Project Folio
             </h1>
           </div>
-          <p className="text-xs text-muted-foreground font-mono">
+          <p className="text-xs text-muted-foreground font-elegant italic tracking-wider">
             Professional Project Management
           </p>
         </div>
@@ -55,7 +55,7 @@ export const EmailConfirmation: React.FC<EmailConfirmationProps> = ({ email, onB
             <Mail className="h-8 w-8 text-primary" />
           </div>
         </div>
-        <CardTitle className="text-2xl font-semibold text-foreground">
+        <CardTitle className="text-2xl font-semibold text-foreground font-artistic tracking-wide">
           Check your email
         </CardTitle>
         <CardDescription className="text-muted-foreground">
@@ -98,7 +98,7 @@ export const EmailConfirmation: React.FC<EmailConfirmationProps> = ({ email, onB
           </Button>
         </div>
 
-        <div className="text-center">
+        <div className="text-center space-y-3">
           <p className="text-xs text-muted-foreground">
             Already confirmed your email?{' '}
             <button
@@ -108,6 +108,28 @@ export const EmailConfirmation: React.FC<EmailConfirmationProps> = ({ email, onB
               Try signing in
             </button>
           </p>
+          <div className="pt-4 border-t border-border/50">
+            <p className="text-xs text-muted-foreground/70 font-light tracking-wide">
+              Developed by{' '}
+              <a
+                href="https://www.instagram.com/life_as_fredy?utm_source=ig_web_button_share_sheet&igsh=MXU4YXZoYTB3eTVpNA=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary/80 hover:text-primary font-medium transition-colors duration-200 underline decoration-dotted underline-offset-2"
+              >
+                Fred
+              </a>
+              {' & '}
+              <a
+                href="https://www.instagram.com/iame.v.a.n/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary/80 hover:text-primary font-medium transition-colors duration-200 underline decoration-dotted underline-offset-2"
+              >
+                Evan
+              </a>
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>

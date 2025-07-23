@@ -65,16 +65,16 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode, onEmai
             <div className="p-2 bg-primary/10 rounded-lg">
               <Terminal className="h-6 w-6 text-primary" />
             </div>
-            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent font-serif tracking-wide">
               Project Folio
             </h1>
           </div>
-          <p className="text-xs text-muted-foreground font-mono">
+          <p className="text-xs text-muted-foreground font-elegant italic tracking-wider">
             Professional Project Management
           </p>
         </div>
         <div className="space-y-1">
-          <CardTitle className="text-2xl font-semibold text-foreground text-center">
+          <CardTitle className="text-2xl font-semibold text-foreground text-center font-artistic tracking-wide">
             Create your account
           </CardTitle>
           <CardDescription className="text-muted-foreground text-center">
@@ -141,7 +141,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode, onEmai
           </Button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-3">
           <p className="text-muted-foreground text-sm">
             Already have an account?{' '}
             <button
@@ -151,6 +151,28 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode, onEmai
               Sign in
             </button>
           </p>
+          <div className="pt-4 border-t border-border/50">
+            <p className="text-xs text-muted-foreground/70 font-light tracking-wide">
+              Developed by{' '}
+              <a
+                href="https://www.instagram.com/life_as_fredy?utm_source=ig_web_button_share_sheet&igsh=MXU4YXZoYTB3eTVpNA=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary/80 hover:text-primary font-medium transition-colors duration-200 underline decoration-dotted underline-offset-2"
+              >
+                Fred
+              </a>
+              {' & '}
+              <a
+                href="https://www.instagram.com/iame.v.a.n/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary/80 hover:text-primary font-medium transition-colors duration-200 underline decoration-dotted underline-offset-2"
+              >
+                Evan
+              </a>
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>

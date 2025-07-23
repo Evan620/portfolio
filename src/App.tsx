@@ -7,11 +7,13 @@ import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { AuthPage } from "./components/AuthPage";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import Index from "./pages/Index";
+import SharedDashboard from "./pages/SharedDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const AppContent = () => {
+// Component for authenticated routes
+const AuthenticatedApp = () => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
@@ -29,10 +31,20 @@ const AppContent = () => {
     return <AuthPage />;
   }
 
+  return <Index />;
+};
+
+// Main app content with routing
+const AppContent = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Index />} />
+        {/* Public route for shared dashboards */}
+        <Route path="/shared/:token" element={<SharedDashboard />} />
+
+        {/* Authenticated routes */}
+        <Route path="/" element={<AuthenticatedApp />} />
+
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

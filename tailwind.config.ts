@@ -21,6 +21,9 @@ export default {
 			fontFamily: {
 				'inter': ['Inter', 'sans-serif'],
 				'mono': ['JetBrains Mono', 'monospace'],
+				'serif': ['Playfair Display', 'serif'],
+				'elegant': ['Crimson Text', 'serif'],
+				'artistic': ['Cormorant Garamond', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

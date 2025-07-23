@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { ProjectCard, Project } from "@/components/ProjectCard";
 import { AddProjectModal } from "@/components/AddProjectModal";
+import { ShareDashboardModal } from "@/components/ShareDashboardModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Search, Terminal, Plus, Github, ExternalLink, Activity, Zap, Code2, Globe, Sparkles, User, LogOut } from "lucide-react";
+import { Search, Terminal, Plus, Github, ExternalLink, Activity, Zap, Code2, Globe, Sparkles, User, LogOut, Share2 } from "lucide-react";
 import { ProjectService } from "@/services/projectService";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -156,10 +157,10 @@ const Index = () => {
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-green rounded-full animate-pulse"></div>
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground bg-gradient-primary bg-clip-text text-transparent">
+                  <h1 className="text-xl font-bold text-foreground bg-gradient-primary bg-clip-text text-transparent font-serif tracking-wide">
                     Project Folio
                   </h1>
-                  <p className="text-xs text-muted-foreground font-mono hidden sm:block">
+                  <p className="text-xs text-muted-foreground font-elegant italic tracking-wider hidden sm:block">
                     Professional Project Management
                   </p>
                 </div>
@@ -177,15 +178,27 @@ const Index = () => {
             </div>
             <div className="flex items-center space-x-3">
               {projects.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={copyAllUrls}
-                  className="hidden sm:flex border-border hover:bg-accent transition-all duration-200"
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Copy All URLs
-                </Button>
+                <>
+                  <ShareDashboardModal>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="hidden sm:flex border-border hover:bg-accent transition-all duration-200"
+                    >
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share
+                    </Button>
+                  </ShareDashboardModal>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={copyAllUrls}
+                    className="hidden md:flex border-border hover:bg-accent transition-all duration-200"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Copy All URLs
+                  </Button>
+                </>
               )}
               <AddProjectModal onAddProject={addProject} />
               
@@ -278,10 +291,10 @@ const Index = () => {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <h3 className="text-2xl font-bold text-foreground font-inter">
+                  <h3 className="text-2xl font-bold text-foreground font-artistic tracking-wide">
                     Welcome to Project Folio
                   </h3>
-                  <p className="text-muted-foreground max-w-md mx-auto font-mono text-sm">
+                  <p className="text-muted-foreground max-w-md mx-auto font-elegant text-sm leading-relaxed">
                     Start by adding your first project. Monitor, manage, and share your live projects with clients in one centralized, professional dashboard.
                   </p>
                 </div>
@@ -335,6 +348,35 @@ const Index = () => {
           </div>
         )}
       </main>
+
+      {/* Developer Credits Footer */}
+      <footer className="mt-16 py-8 border-t border-border/30">
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground/60 font-elegant tracking-wide">
+            Crafted with passion by{' '}
+            <a
+              href="https://www.instagram.com/life_as_fredy?utm_source=ig_web_button_share_sheet&igsh=MXU4YXZoYTB3eTVpNA=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary/70 hover:text-primary font-medium transition-all duration-300 underline decoration-dotted underline-offset-2 hover:decoration-solid"
+            >
+              Fred
+            </a>
+            {' & '}
+            <a
+              href="https://www.instagram.com/iame.v.a.n/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary/70 hover:text-primary font-medium transition-all duration-300 underline decoration-dotted underline-offset-2 hover:decoration-solid"
+            >
+              Evan
+            </a>
+          </p>
+          <p className="text-xs text-muted-foreground/40 font-mono mt-1 tracking-wider">
+            © 2024 Project Folio
+          </p>
+        </div>
+      </footer>
 
       {/* Edit Project Modal */}
       {editingProject && (
