@@ -197,6 +197,12 @@ const Index = () => {
                   <Activity className="h-3 w-3 mr-1" />
                   {projects.length} {projects.length === 1 ? 'Project' : 'Projects'}
                 </Badge>
+                {isShared && (
+                  <Badge variant="secondary" className="bg-blue/10 text-blue border-blue/20 font-mono animate-glow">
+                    <Eye className="h-3 w-3 mr-1" />
+                    {totalViews} Views
+                  </Badge>
+                )}
                 <Badge variant="secondary" className="bg-green/10 text-green border-green/20 font-mono hidden sm:inline-flex">
                   <Zap className="h-3 w-3 mr-1" />
                   Online
