@@ -74,6 +74,47 @@ export type Database = {
         }
         Relationships: []
       }
+      dashboard_views: {
+        Row: {
+          city: string | null
+          country: string | null
+          id: string
+          referrer: string | null
+          shared_dashboard_id: string
+          viewed_at: string
+          viewer_ip: string | null
+          viewer_user_agent: string | null
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          id?: string
+          referrer?: string | null
+          shared_dashboard_id: string
+          viewed_at?: string
+          viewer_ip?: string | null
+          viewer_user_agent?: string | null
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          id?: string
+          referrer?: string | null
+          shared_dashboard_id?: string
+          viewed_at?: string
+          viewer_ip?: string | null
+          viewer_user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_views_shared_dashboard_id_fkey"
+            columns: ["shared_dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "shared_dashboards"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       shared_dashboards: {
         Row: {
           created_at: string
@@ -83,6 +124,7 @@ export type Database = {
           share_token: string
           updated_at: string
           user_id: string
+          view_count: number
         }
         Insert: {
           created_at?: string
@@ -92,6 +134,7 @@ export type Database = {
           share_token: string
           updated_at?: string
           user_id: string
+          view_count?: number
         }
         Update: {
           created_at?: string
@@ -101,6 +144,7 @@ export type Database = {
           share_token?: string
           updated_at?: string
           user_id?: string
+          view_count?: number
         }
         Relationships: []
       }
@@ -109,7 +153,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_dashboard_view_stats: {
+        Args: {
+          p_share_token: string
+        }
+        Returns: {
+          total_views: number
+          unique_ips: number
+          views_today: number
+          views_this_week: number
+          views_this_month: number
+          recent_views: string[]
+        }[]
+      }
+      track_dashboard_view: {
+        Args: {
+          p_share_token: string
+          p_viewer_ip?: string
+          p_user_agent?: string
+          p_referrer?: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

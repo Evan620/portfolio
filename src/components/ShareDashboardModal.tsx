@@ -4,20 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Share2, Eye, EyeOff, ExternalLink, RefreshCw, Trash2 } from "lucide-react";
+import { Copy, Share2, Eye, EyeOff, ExternalLink, RefreshCw, Trash2, BarChart3, Users, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { SharingService } from "@/services/sharingService";
+import { SharingService, ViewStats } from "@/services/sharingService";
 
 interface ShareDashboardModalProps {
   children: React.ReactNode;
+  onShareStatusChange?: () => void;
 }
 
-export const ShareDashboardModal = ({ children }: ShareDashboardModalProps) => {
+export const ShareDashboardModal = ({ children, onShareStatusChange }: ShareDashboardModalProps) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
+  const [viewCount, setViewCount] = useState(0);
+  const [viewStats, setViewStats] = useState<ViewStats | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showStats, setShowStats] = useState(false);
 
   // Load existing share token when modal opens
   useEffect(() => {
@@ -28,9 +32,14 @@ export const ShareDashboardModal = ({ children }: ShareDashboardModalProps) => {
 
   const loadCurrentShareToken = async () => {
     setIsLoading(true);
-    const { shareToken: currentToken, error } = await SharingService.getCurrentShareToken();
-    
+    console.log('Loading current share token...');
+
+    const { shareToken: currentToken, viewCount: currentViewCount, error } = await SharingService.getCurrentShareTokenWithStats();
+
+    console.log('Share token result:', { currentToken, currentViewCount, error });
+
     if (error) {
+      console.error('Share token error:', error);
       toast({
         title: "Error loading share status",
         description: error.message,
@@ -38,15 +47,29 @@ export const ShareDashboardModal = ({ children }: ShareDashboardModalProps) => {
       });
     } else {
       setShareToken(currentToken);
+      setViewCount(currentViewCount);
+      console.log('Set view count to:', currentViewCount);
+
+      // Load detailed stats if we have a token
+      if (currentToken) {
+        loadViewStats(currentToken);
+      }
     }
-    
+
     setIsLoading(false);
+  };
+
+  const loadViewStats = async (token: string) => {
+    const { stats, error } = await SharingService.getViewStats(token);
+    if (!error && stats) {
+      setViewStats(stats);
+    }
   };
 
   const generateShareLink = async () => {
     setIsGenerating(true);
     const { shareToken: newToken, error } = await SharingService.createShareToken();
-    
+
     if (error) {
       toast({
         title: "Error generating share link",
@@ -55,19 +78,24 @@ export const ShareDashboardModal = ({ children }: ShareDashboardModalProps) => {
       });
     } else {
       setShareToken(newToken);
+      setViewCount(0); // Reset view count for new token
+      setViewStats(null); // Reset stats for new token
       toast({
         title: "Share link generated!",
         description: "Your dashboard is now shareable",
       });
+
+      // Notify parent component of share status change
+      onShareStatusChange?.();
     }
-    
+
     setIsGenerating(false);
   };
 
   const deactivateShareLink = async () => {
     setIsGenerating(true);
     const { error } = await SharingService.deactivateShareToken();
-    
+
     if (error) {
       toast({
         title: "Error deactivating share link",
@@ -76,12 +104,17 @@ export const ShareDashboardModal = ({ children }: ShareDashboardModalProps) => {
       });
     } else {
       setShareToken(null);
+      setViewCount(0);
+      setViewStats(null);
       toast({
         title: "Share link deactivated",
         description: "Your dashboard is no longer publicly accessible",
       });
+
+      // Notify parent component of share status change
+      onShareStatusChange?.();
     }
-    
+
     setIsGenerating(false);
   };
 
@@ -159,6 +192,72 @@ export const ShareDashboardModal = ({ children }: ShareDashboardModalProps) => {
                   {shareToken ? "Active" : "Inactive"}
                 </Badge>
               </div>
+
+              {/* View Statistics */}
+              {shareToken && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4" />
+                      View Statistics
+                    </h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowStats(!showStats)}
+                      className="text-xs"
+                    >
+                      {showStats ? "Hide" : "Show"} Details
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-background/50 rounded-lg p-3 text-center">
+                      <p className="text-2xl font-bold text-primary">{viewCount}</p>
+                      <p className="text-xs text-muted-foreground">Total Views</p>
+                    </div>
+                    <div className="bg-background/50 rounded-lg p-3 text-center">
+                      <p className="text-2xl font-bold text-blue">{viewStats?.uniqueIps || 0}</p>
+                      <p className="text-xs text-muted-foreground">Unique Visitors</p>
+                    </div>
+                  </div>
+
+                  {showStats && viewStats && (
+                    <div className="space-y-3 p-3 bg-background/30 rounded-lg border border-border/30">
+                      <div className="grid grid-cols-3 gap-3 text-center">
+                        <div>
+                          <p className="text-lg font-semibold text-green">{viewStats.viewsToday}</p>
+                          <p className="text-xs text-muted-foreground">Today</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-semibold text-amber">{viewStats.viewsThisWeek}</p>
+                          <p className="text-xs text-muted-foreground">This Week</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-semibold text-cyan">{viewStats.viewsThisMonth}</p>
+                          <p className="text-xs text-muted-foreground">This Month</p>
+                        </div>
+                      </div>
+
+                      {viewStats.recentViews.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            Recent Views
+                          </p>
+                          <div className="space-y-1 max-h-20 overflow-y-auto">
+                            {viewStats.recentViews.slice(0, 5).map((viewTime, index) => (
+                              <p key={index} className="text-xs text-muted-foreground font-mono">
+                                {new Date(viewTime).toLocaleString()}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Share Link Section */}
               {shareToken ? (

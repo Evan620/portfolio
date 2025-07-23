@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { ProjectCard, Project } from "@/components/ProjectCard";
 import { AddProjectModal } from "@/components/AddProjectModal";
 import { ShareDashboardModal } from "@/components/ShareDashboardModal";
+import { DiagnosticModal } from "@/components/DiagnosticModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Search, Terminal, Plus, Github, ExternalLink, Activity, Zap, Code2, Globe, Sparkles, User, LogOut, Share2 } from "lucide-react";
+import { Search, Terminal, Plus, Github, ExternalLink, Activity, Zap, Code2, Globe, Sparkles, User, LogOut, Share2, Settings, Eye } from "lucide-react";
 import { ProjectService } from "@/services/projectService";
+import { SharingService } from "@/services/sharingService";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -19,11 +21,33 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
+  const [totalViews, setTotalViews] = useState(0);
+  const [isShared, setIsShared] = useState(false);
 
-  // Load projects on mount
+  // Load sharing statistics
+  const loadSharingStats = async () => {
+    try {
+      const { shareToken, viewCount, error } = await SharingService.getCurrentShareTokenWithStats();
+      if (!error && shareToken) {
+        setTotalViews(viewCount);
+        setIsShared(true);
+      } else {
+        setTotalViews(0);
+        setIsShared(false);
+      }
+    } catch (err) {
+      console.error('Error loading sharing stats:', err);
+      setTotalViews(0);
+      setIsShared(false);
+    }
+  };
+
+  // Load projects and sharing stats on mount
   useEffect(() => {
-    const loadProjects = async () => {
+    const loadData = async () => {
       setLoading(true);
+
+      // Load projects
       const { projects: loadedProjects, error } = await ProjectService.getProjects();
 
       if (error) {
@@ -36,10 +60,13 @@ const Index = () => {
         setProjects(loadedProjects);
       }
 
+      // Load sharing stats
+      await loadSharingStats();
+
       setLoading(false);
     };
 
-    loadProjects();
+    loadData();
   }, [toast]);
 
   const addProject = async (projectData: Omit<Project, "id" | "createdAt">) => {
@@ -179,7 +206,7 @@ const Index = () => {
             <div className="flex items-center space-x-3">
               {projects.length > 0 && (
                 <>
-                  <ShareDashboardModal>
+                  <ShareDashboardModal onShareStatusChange={loadSharingStats}>
                     <Button
                       variant="outline"
                       size="sm"
@@ -218,6 +245,12 @@ const Index = () => {
                     <div className="text-sm font-medium text-foreground">{user?.name}</div>
                     <div className="text-xs text-muted-foreground">{user?.email}</div>
                   </DropdownMenuItem>
+                  <DiagnosticModal>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Sharing Diagnostics</span>
+                    </DropdownMenuItem>
+                  </DiagnosticModal>
                   <DropdownMenuItem onClick={logout} className="text-destructive">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
@@ -249,7 +282,7 @@ const Index = () => {
           </div>
           
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+          <div className={`grid grid-cols-1 gap-4 max-w-2xl mx-auto ${isShared ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-3'}`}>
             <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center hover:shadow-glow transition-all duration-300 animate-scale-in">
               <Code2 className="h-5 w-5 text-primary mx-auto mb-2" />
               <p className="text-sm text-muted-foreground font-mono">Total Projects</p>
@@ -258,12 +291,19 @@ const Index = () => {
             <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center hover:shadow-cyan-glow transition-all duration-300 animate-scale-in">
               <Globe className="h-5 w-5 text-cyan mx-auto mb-2" />
               <p className="text-sm text-muted-foreground font-mono">Live Sites</p>
-              <p className="text-2xl font-bold text-foreground font-mono">{projects.length}</p>
+              <p className="text-2xl font-bold text-foreground font-mono">{projects.filter(p => p.projectUrl).length}</p>
             </div>
+            {isShared && (
+              <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center hover:shadow-green-glow transition-all duration-300 animate-scale-in">
+                <Eye className="h-5 w-5 text-green mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground font-mono">Dashboard Views</p>
+                <p className="text-2xl font-bold text-green font-mono">{totalViews}</p>
+              </div>
+            )}
             <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center hover:shadow-elevated transition-all duration-300 animate-scale-in">
               <Github className="h-5 w-5 text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground font-mono">Repositories</p>
-              <p className="text-2xl font-bold text-foreground font-mono">{projects.length}</p>
+              <p className="text-2xl font-bold text-foreground font-mono">{projects.filter(p => p.githubUrl).length}</p>
             </div>
           </div>
         </div>

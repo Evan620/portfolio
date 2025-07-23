@@ -19,7 +19,7 @@ const SharedDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load projects on mount
+  // Load projects on mount and track view
   useEffect(() => {
     const loadSharedDashboard = async () => {
       if (!token) {
@@ -29,6 +29,8 @@ const SharedDashboard = () => {
       }
 
       setLoading(true);
+
+      // Load projects and profile
       const { projects: loadedProjects, profile: userProfile, error } = await PublicProjectService.getProjectsByShareToken(token);
 
       if (error) {
@@ -41,6 +43,9 @@ const SharedDashboard = () => {
       } else {
         setProjects(loadedProjects);
         setProfile(userProfile);
+
+        // Track the view (don't block UI if this fails)
+        PublicProjectService.trackView(token).catch(console.error);
       }
 
       setLoading(false);

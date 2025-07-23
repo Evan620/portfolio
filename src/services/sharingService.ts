@@ -8,6 +8,16 @@ export interface SharedDashboard {
   createdAt: string;
   updatedAt: string;
   expiresAt: string | null;
+  viewCount: number;
+}
+
+export interface ViewStats {
+  totalViews: number;
+  uniqueIps: number;
+  viewsToday: number;
+  viewsThisWeek: number;
+  viewsThisMonth: number;
+  recentViews: string[];
 }
 
 export interface SharingError {
@@ -186,12 +196,89 @@ export class SharingService {
         isActive: item.is_active,
         createdAt: item.created_at,
         updatedAt: item.updated_at,
-        expiresAt: item.expires_at
+        expiresAt: item.expires_at,
+        viewCount: item.view_count
       }));
 
       return { dashboards, error: null };
     } catch (err) {
       return { dashboards: [], error: { message: 'An unexpected error occurred' } };
+    }
+  }
+
+  /**
+   * Get view statistics for a shared dashboard
+   */
+  static async getViewStats(shareToken: string): Promise<{ stats: ViewStats | null; error: SharingError | null }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        return { stats: null, error: { message: 'User not authenticated' } };
+      }
+
+      const { data, error } = await supabase
+        .rpc('get_dashboard_view_stats', { p_share_token: shareToken });
+
+      if (error) {
+        return { stats: null, error: { message: error.message, code: error.code } };
+      }
+
+      if (!data || data.length === 0) {
+        return { stats: null, error: { message: 'No statistics found for this dashboard' } };
+      }
+
+      const statsData = data[0];
+      const stats: ViewStats = {
+        totalViews: statsData.total_views,
+        uniqueIps: statsData.unique_ips,
+        viewsToday: statsData.views_today,
+        viewsThisWeek: statsData.views_this_week,
+        viewsThisMonth: statsData.views_this_month,
+        recentViews: statsData.recent_views
+      };
+
+      return { stats, error: null };
+    } catch (err) {
+      return { stats: null, error: { message: 'An unexpected error occurred' } };
+    }
+  }
+
+  /**
+   * Get current share token with view count
+   */
+  static async getCurrentShareTokenWithStats(): Promise<{
+    shareToken: string | null;
+    viewCount: number;
+    error: SharingError | null
+  }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        return { shareToken: null, viewCount: 0, error: { message: 'User not authenticated' } };
+      }
+
+      const { data, error } = await supabase
+        .from('shared_dashboards')
+        .select('share_token, view_count')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No rows returned - no active share token
+          return { shareToken: null, viewCount: 0, error: null };
+        }
+        return { shareToken: null, viewCount: 0, error: { message: error.message, code: error.code } };
+      }
+
+      return { shareToken: data.share_token, viewCount: data.view_count, error: null };
+    } catch (err) {
+      return { shareToken: null, viewCount: 0, error: { message: 'An unexpected error occurred' } };
     }
   }
 }

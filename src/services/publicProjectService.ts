@@ -14,12 +14,38 @@ export interface PublicProjectError {
 
 export class PublicProjectService {
   /**
+   * Track a view for a shared dashboard
+   */
+  static async trackView(token: string): Promise<{ success: boolean; error: PublicProjectError | null }> {
+    try {
+      // Get client IP and user agent for tracking
+      const userAgent = navigator.userAgent;
+      const referrer = document.referrer;
+
+      const { data, error } = await supabase
+        .rpc('track_dashboard_view', {
+          p_share_token: token,
+          p_user_agent: userAgent,
+          p_referrer: referrer || null
+        });
+
+      if (error) {
+        return { success: false, error: { message: error.message, code: error.code } };
+      }
+
+      return { success: data, error: null };
+    } catch (err) {
+      return { success: false, error: { message: 'An unexpected error occurred' } };
+    }
+  }
+
+  /**
    * Get projects for a shared dashboard by token (public access)
    */
-  static async getProjectsByShareToken(token: string): Promise<{ 
-    projects: Project[]; 
-    profile: PublicProfile | null; 
-    error: PublicProjectError | null 
+  static async getProjectsByShareToken(token: string): Promise<{
+    projects: Project[];
+    profile: PublicProfile | null;
+    error: PublicProjectError | null
   }> {
     try {
       // First validate the token and get user ID
