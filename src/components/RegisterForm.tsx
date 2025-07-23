@@ -3,6 +3,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Terminal } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -58,13 +59,28 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode, onEmai
 
   return (
     <Card className="w-full max-w-md mx-auto bg-card border-border shadow-elevated">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-semibold text-foreground">
-          Create your account
-        </CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Enter your information to get started
-        </CardDescription>
+      <CardHeader className="space-y-4">
+        <div className="text-center">
+          <div className="flex items-center justify-center space-x-2 mb-2">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Terminal className="h-6 w-6 text-primary" />
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              Project Folio
+            </h1>
+          </div>
+          <p className="text-xs text-muted-foreground font-mono">
+            Professional Project Management
+          </p>
+        </div>
+        <div className="space-y-1">
+          <CardTitle className="text-2xl font-semibold text-foreground text-center">
+            Create your account
+          </CardTitle>
+          <CardDescription className="text-muted-foreground text-center">
+            Enter your information to get started
+          </CardDescription>
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">

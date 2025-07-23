@@ -1,7 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Terminal } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -34,7 +34,20 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
           <Card className="w-full max-w-md mx-auto bg-card border-border shadow-elevated">
-            <CardHeader className="text-center">
+            <CardHeader className="text-center space-y-4">
+              <div className="text-center">
+                <div className="flex items-center justify-center space-x-2 mb-2">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Terminal className="h-6 w-6 text-primary" />
+                  </div>
+                  <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                    Project Folio
+                  </h1>
+                </div>
+                <p className="text-xs text-muted-foreground font-mono">
+                  Professional Project Management
+                </p>
+              </div>
               <div className="flex justify-center mb-4">
                 <div className="p-3 bg-destructive/10 rounded-full">
                   <AlertTriangle className="h-8 w-8 text-destructive" />

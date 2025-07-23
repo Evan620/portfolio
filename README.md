@@ -1,6 +1,6 @@
-# Portfolio Dashboard
+# Project Folio
 
-A modern, secure project portfolio management application built with React, TypeScript, and Supabase.
+A modern, secure project portfolio management application built with React, TypeScript, and Supabase. Professional project management made simple.
 
 ## 🚀 Features
 

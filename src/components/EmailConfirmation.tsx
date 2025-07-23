@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Mail, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Mail, ArrowLeft, RefreshCw, Terminal } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -36,7 +36,20 @@ export const EmailConfirmation: React.FC<EmailConfirmationProps> = ({ email, onB
 
   return (
     <Card className="w-full max-w-md mx-auto bg-card border-border shadow-elevated">
-      <CardHeader className="text-center">
+      <CardHeader className="text-center space-y-4">
+        <div className="text-center">
+          <div className="flex items-center justify-center space-x-2 mb-2">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Terminal className="h-6 w-6 text-primary" />
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              Project Folio
+            </h1>
+          </div>
+          <p className="text-xs text-muted-foreground font-mono">
+            Professional Project Management
+          </p>
+        </div>
         <div className="flex justify-center mb-4">
           <div className="p-3 bg-primary/10 rounded-full">
             <Mail className="h-8 w-8 text-primary" />

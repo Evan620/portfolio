@@ -157,10 +157,10 @@ const Index = () => {
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-foreground bg-gradient-primary bg-clip-text text-transparent">
-                    Project Dashboard
+                    Project Folio
                   </h1>
                   <p className="text-xs text-muted-foreground font-mono hidden sm:block">
-                    Live Project Monitor v2.0
+                    Professional Project Management
                   </p>
                 </div>
               </div>
@@ -279,10 +279,10 @@ const Index = () => {
                 </div>
                 <div className="space-y-3">
                   <h3 className="text-2xl font-bold text-foreground font-inter">
-                    Welcome to Your Project Dashboard
+                    Welcome to Project Folio
                   </h3>
                   <p className="text-muted-foreground max-w-md mx-auto font-mono text-sm">
-                    Start by adding your first project. Monitor, manage, and share your live projects with clients in one centralized dashboard.
+                    Start by adding your first project. Monitor, manage, and share your live projects with clients in one centralized, professional dashboard.
                   </p>
                 </div>
                 <div className="flex justify-center">
