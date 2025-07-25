@@ -7,10 +7,19 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Build directories and files (let build tools handle these)
 node_modules
 dist
 dist-ssr
 *.local
+
+# Lock files (let package managers handle these)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build cache
+.vercel
 
 # Editor directories and files
 .vscode/*
